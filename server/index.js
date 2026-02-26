@@ -1,22 +1,42 @@
-import  express from 'express';
+import express from "express";
 import dotenv from "dotenv";
+import connectdb from "./config/db.js";
+import cookieParser from "cookie-parser";
+import cors from "cors";
+import authRouter from "./routes/authRoutes.js";
+
 dotenv.config();
-import connectdb from './config/db.js'; 
-import cookieParser from 'cookie-parser';
-import cors from 'cors';
-import authRouter from "./routes/authRoutes.js"
-const port = process.env.PORT || 8000
+
 const app = express();
+const port = process.env.PORT || 8000;
+
+// Middleware
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
-    origin : "http:localhost:5173",
-    credentials:true
-}))
-app.use('/api/auth',authRouter)
+  origin: "http://localhost:5173",
+  credentials: true,
+}));
 
+// ✅ Fix COOP issue for Firebase popup auth
+app.use((req, res, next) => {
+  res.setHeader("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
+  next();
+});
 
-app.listen(port, ()=>{
-    console.log("Server is running on the port ");
-    connectdb()
-})
+// Routes
+app.use("/api/auth", authRouter);
+
+// Start server after DB connects
+const startServer = async () => {
+  try {
+    await connectdb();
+    app.listen(port, () => {
+      console.log(`Server is running on port ${port}`);
+    });
+  } catch (error) {
+    console.error("Failed to start server:", error);
+  }
+};
+
+startServer();
