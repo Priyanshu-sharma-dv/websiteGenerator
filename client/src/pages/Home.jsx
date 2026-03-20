@@ -7,7 +7,8 @@ import { Coins } from "lucide-react";
 import { AnimatePresence } from "framer-motion";
 import axios from 'axios';
 import { useDispatch } from "react-redux";
-import {setUserData} from "../redux/userSlice";
+import { setUserData } from "../redux/userSlice";
+import { useNavigate } from "react-router-dom";
 function Home() {
   const highlights = [
     "AI Generated Code",
@@ -19,17 +20,18 @@ function Home() {
   const { userData } = useSelector(state => state.user);
   const [openProfile, setOpenProfile] = useState(false);
   const dispatch = useDispatch();
-   const handleLogOut = async() =>{
+  const navigate = useNavigate();
+  const handleLogOut = async () => {
     console.log("Logout successful");
-    
-try{
-   await axios.get(`${serverUrl}/auth/logout`,{withCredentials:true})
-   dispatch(setUserData(null))
-   setOpenProfile(false);
-}catch(error){
-  console.log(error);
-}
-   }
+
+    try {
+      await axios.get(`${serverUrl}/auth/logout`, { withCredentials: true })
+      dispatch(setUserData(null))
+      setOpenProfile(false);
+    } catch (error) {
+      console.log(error);
+    }
+  }
   return (
     <div className="relative min-h-screen bg-[#040404] text-white overflow-hidden">
 
@@ -90,7 +92,7 @@ try{
                           <span>{userData.credits}</span>
                           <span className="font-semibold">+</span>
                         </button>
-                        <button className="w-full px-4 py-3 text-sm text-left border-b border-white/10 hover:bg-white/5">Dashboard</button>
+                        <button className="w-full px-4 py-3 text-sm text-left border-b border-white/10 hover:bg-white/5" onClick={() => navigate("/Dashboard")}>Dashboard</button>
                         <button className="w-full px-4 py-3  text-left text-sm border-b border-white/10 hover:bg-white/5" onClick={handleLogOut}>logout</button>
                       </motion.div>
                     </>
@@ -125,14 +127,12 @@ try{
           Describe your ideal website, and let Genweb.ai bring it to life in seconds.
         </motion.p>
 
-        {!userData && (
-          <button
-            onClick={() => setOpenLogin(true)}
-            className="px-10 py-4 rounded-xl bg-white text-black font-semibold hover:scale-105 transition mt-12"
-          >
-            Get Started
-          </button>
-        )}
+        <button
+          onClick={() => userData ? navigate("/Dashboard") : setOpenLogin(true)}
+          className="px-10 py-4 rounded-xl bg-white text-black font-semibold hover:scale-105 transition mt-12"
+        >
+          {userData ? "Go to Dashboard" : "Get Started"}
+        </button>
       </section>
 
       <section className="max-w-7xl mx-auto px-6 pb-32">
