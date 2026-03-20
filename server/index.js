@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import authRouter from "./routes/authRoutes.js";
 import userRouter from "./routes/userRoute.js";
+import websiteRouter from "./routes/websiteroute.js";
 
 dotenv.config();
 
@@ -28,7 +29,7 @@ app.use((req, res, next) => {
 // Routes
 app.use("/api/auth", authRouter);
 app.use("/api/user", userRouter);
-
+app.use("/api/website", websiteRouter);
 // Start server after DB connects
 const startServer = async () => {
   try {
