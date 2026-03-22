@@ -2,6 +2,7 @@ const openRouterUrl = "https://openrouter.ai/api/v1/chat/completions"
 const model = "deepseek/deepseek-chat"
 
 export const generateResponse = async (prompt) => {
+    console.log("🤖 Calling OpenRouter API...")
     const res = await fetch(openRouterUrl, {
         method: 'POST',
         headers: {
@@ -10,6 +11,7 @@ export const generateResponse = async (prompt) => {
         },
         body: JSON.stringify({
             model: model,
+            max_tokens: 12000,
             messages: [
                 { role: 'system', content: "You are a helpful assistant that helps users build websites." },
                 { role: 'user', content: prompt },
@@ -17,7 +19,7 @@ export const generateResponse = async (prompt) => {
             temperature: 0.2
         }),
     });
-
+  console.log("✅ OpenRouter response status:", res.status)
     if (!res.ok) {
         const err = await res.text()
         throw new Error(`OpenRouter API error: ${err}`)

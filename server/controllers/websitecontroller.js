@@ -2,6 +2,7 @@ import { generateResponse } from "../config/openRouter.js";
 import extractJson from "../utils/extractjson.js";
 import Website from "../models/websitemodal.js";
 import User from "../models/usermodel.js";
+
 const masterPrompt = `
 YOU ARE A PRINCIPAL FRONTEND ARCHITECT
 AND A SENIOR UI/UX ENGINEER
@@ -151,58 +152,65 @@ ABSOLUTE RULES
 `;
 
 export const generateWebsite = async (req, res) => {
-    try{
-        const{prompt} =req.body;
-        if(!prompt){
-            return res.status(400).json({message:"Prompt is required"})
+    try {
+        const { prompt } = req.body;
+        if (!prompt) {
+            return res.status(400).json({ message: "Prompt is required" })
         }
+
         const user = await User.findById(req.user.id);
-        if(!user){
-            return res.status(400).json({message:"user not found"})
+        if (!user) {
+            return res.status(400).json({ message: "User not found" })
         }
-        if(user.credits < 50){
-            return res.status(403).json({message:"Not enough credits"})
-        }
-       const finalPrompt = masterPrompt.replace("{USER_PROMPT}", prompt)
-       let raw = ""
-       let parsed = null
 
-       for(let i=0; i<2 && !parsed; i++){
-        raw = await generateResponse(finalPrompt)
-        parsed = await extractJson(raw)
-        if(!parsed){
-       raw = await generateResponse(finalPrompt +"\n\n RETRUN ONLY THE RAW JSON")
-       parsed = await extractJson(raw)
-       }
-       }  
-       if(!parsed.code){
-        console.log("ai returned invalid response ",raw);
-        return res.status(500).json({message:"AI returned invalid response "})
-       }
-         const website  = await Website({
-            user: user_id,
-            title: prompt.slice(0,60),
-            latestCode:parsed.code,
-            conversation:[
-                {
-                    role:"ai",
-                    content:parsed.message
-                },
-                {
-                    role:"user",
-                    content:prompt.message
-                }
+        if (user.credits < 50) {
+            return res.status(403).json({ message: "Not enough credits" })
+        }
+
+        const finalPrompt = masterPrompt.replace("{USER_PROMPT}", prompt)
+        let raw = ""
+        let parsed = null
+
+        for (let i = 0; i < 2 && !parsed; i++) {
+            raw = await generateResponse(finalPrompt)
+            parsed = await extractJson(raw)
+            if (!parsed) {
+                raw = await generateResponse(finalPrompt + "\n\nRETURN ONLY RAW JSON")
+                parsed = await extractJson(raw)
+            }
+            console.log(raw);
+            console.log(parsed);
+            
+        }
+
+        if (!parsed || !parsed.code) {
+            console.log("AI returned invalid response:", raw);
+            return res.status(500).json({ message: "AI returned invalid response" })
+        }
+
+        // ✅ Bug 1 fix: user._id, Bug 2 fix: new + save, Bug 3 fix: conversation order
+        const website = await new Website({
+            user: user._id,
+            title: prompt.slice(0, 60),
+            latestCode: parsed.code,
+            slug: Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15),
+            conversation: [
+                { role: "user", content: prompt },
+                { role: "ai", content: parsed.message }
             ]
-         })
+        }).save()
 
-         user.credits = user.credits-50 
-         await user.save()
+        // ✅ Credits deduct
+        user.credits = user.credits - 50
+        await user.save()
 
-         return res.json({
+        return res.json({
             websiteId: website._id,
-            remainingCredits:user.credits
-         }) 
-    }catch(error){
+            remainingCredits: user.credits
+        })
+
+    } catch (error) {
         console.error("Error generating website:", error);
+        return res.status(500).json({ message: "Internal server error" })
     }
 }

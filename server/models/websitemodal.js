@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+
 const messageSchema = new mongoose.Schema({
     role: {
         type: String,
@@ -34,7 +35,8 @@ const websiteSchema = new mongoose.Schema({
     },
     slug: {
         type: String,
-        unique: true
+        unique: true,
+        sparse:true
     }
 }, { timestamps: true })
 
