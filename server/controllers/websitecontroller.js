@@ -180,7 +180,7 @@ export const generateWebsite = async (req, res) => {
             }
             console.log(raw);
             console.log(parsed);
-            
+
         }
 
         if (!parsed || !parsed.code) {
@@ -212,5 +212,21 @@ export const generateWebsite = async (req, res) => {
     } catch (error) {
         console.error("Error generating website:", error);
         return res.status(500).json({ message: "Internal server error" })
+    }
+}
+
+export const getWebsiteById = async (req, res) => {
+    try {
+        const website = await Website.findOne({
+            _id: req.params.id,
+            user: req.user.id
+        });
+        if (!website) {
+            return res.status(404).json({ message: "Website not found" });
+        }
+        return res.status(200).json({website});
+    } catch (error) {
+        console.error("Error fetching website:", error);
+        return res.status(500).json({ message: `Internal server error ${error}`});
     }
 }

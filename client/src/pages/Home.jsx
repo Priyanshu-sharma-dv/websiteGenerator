@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import LoginModal from "../components/LoginModal";
-import { serverUrl } from '../App';
 import { useSelector } from "react-redux";
 import { Coins } from "lucide-react";
 import { AnimatePresence } from "framer-motion";
@@ -22,16 +21,14 @@ function Home() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const handleLogOut = async () => {
-    console.log("Logout successful");
-
-    try {
-      await axios.get(`${serverUrl}/auth/logout`, { withCredentials: true })
-      dispatch(setUserData(null))
-      setOpenProfile(false);
-    } catch (error) {
-      console.log(error);
-    }
+  try {
+    await axios.post(`${import.meta.env.VITE_SERVER_URL}/api/auth/logout`, {}, { withCredentials: true })
+    dispatch(setUserData(null))
+    setOpenProfile(false);
+  } catch (error) {
+    console.log(error);
   }
+}
   return (
     <div className="relative min-h-screen bg-[#040404] text-white overflow-hidden">
 
@@ -166,5 +163,4 @@ function Home() {
     </div>
   );
 }
-
 export default Home;

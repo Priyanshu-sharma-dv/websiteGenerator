@@ -9,7 +9,7 @@ function Generate() {
   const [prompt, setPrompt] = useState("");
 
  const handleGenerateWebsite = async () => {
-    // ✅ Empty prompt check karo
+  
     if (!prompt.trim()) {
         alert("Please enter a prompt first!");
         return;
@@ -17,13 +17,15 @@ function Generate() {
     
     try {
         const result = await axios.post(
-            `${import.meta.env.VITE_APP_SERVER_URL}/api/website/generate`,
+            `${import.meta.env.VITE_SERVER_URL}/api/website/generate`,
             { prompt },
             { withCredentials: true }  
         );
         console.log("Result:", result.data);
+            navigate(`/editor/${result.data.websiteId}`);
+
     } catch (error) {
-        // ✅ Exact server error dekho
+        
         console.error("Error:", error.response?.data);
     }
 };
@@ -79,7 +81,7 @@ function Generate() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={handleGenerateWebsite}
-            className='px-8 py-4 bg-gradient-to-r from-white to-zinc-400 text-black font-semibold rounded-2xl transition'
+            className='px-8 py-4 bg-linear-to-r from-white to-zinc-400 text-black font-semibold rounded-2xl transition'
           >
             Generate Website
           </motion.button>

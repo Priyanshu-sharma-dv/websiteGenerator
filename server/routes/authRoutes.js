@@ -4,6 +4,6 @@ import { googleAuth, logOut } from '../controllers/authcontroller.js';
 const authRouter = express.Router();
 
 authRouter.post("/google", googleAuth);
-authRouter.post("/logout", logOut); // ✅ changed GET → POST
+authRouter.post("/logout", logOut); 
 
 export default authRouter;
