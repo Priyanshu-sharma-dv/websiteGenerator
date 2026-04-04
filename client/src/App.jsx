@@ -5,7 +5,7 @@ import useGetCurrentUSer from './hooks/useGetCurrent';
 import { useSelector } from 'react-redux';
 import Dashboard from './pages/Dashboard';
 import Generate from './pages/Generate';
-import Editor from './pages/Editor';
+import WebsiteEditor from './pages/Editor';
 export const serverUrl = "";
 function App() {
   const { loading } = useGetCurrentUSer(); 
@@ -17,7 +17,7 @@ function App() {
         <Route path='/' element={<Home />} />
         <Route path='/Dashboard' element={userData?<Dashboard/>:<Navigate to= {"/"}/>} />
         <Route path='/Generate' element={userData?<Generate/>:<Navigate to= {"/"}/>} />
-        <Route path='/editor/:id'element={userData?<Editor/>:<Navigate to={"/"}/>} />
+        <Route path='/editor/:id'element={userData?<WebsiteEditor/>:<Navigate to={"/"}/>} />
       </Routes>
     </BrowserRouter>
   )

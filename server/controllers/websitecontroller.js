@@ -224,9 +224,93 @@ export const getWebsiteById = async (req, res) => {
         if (!website) {
             return res.status(404).json({ message: "Website not found" });
         }
-        return res.status(200).json({website});
+        return res.status(200).json({ website });
     } catch (error) {
         console.error("Error fetching website:", error);
-        return res.status(500).json({ message: `Internal server error ${error}`});
+        return res.status(500).json({ message: `Internal server error ${error}` });
     }
+}
+
+export const changes = async (req, res) => {
+    try {
+        const { prompt } = req.body;
+        if (!prompt) {
+            return res.status(400).json({ message: "Prompt is required" });
+        }
+
+        const website = await Website.findOne({
+            _id: req.params.id,
+            user: req.user._id
+        });
+        if (!website) {
+            return res.status(404).json({ message: "Website not found" });
+        }
+        const user = await User.findById(req.user._id);
+        if (!user) {
+            return res.status(400).json({ message: "User not found" });
+        }
+
+        if (user.credits < 20) {
+            return res.status(403).json({ message: "Not enough credits" });
+        }
+        const updatePrompt = `UPDATE THIS WEBSITE BASED  
+              ON THE FOLLOWING USER REQUEST: ${prompt}
+            RETURN RAW JSON ONLY
+             {
+               "message": "Short professional confirmation sentence",
+               "code": "<UPDATED FULL VALID HTML DOCUMENT>"
+            }`
+        let raw = ""
+        let parsed = null
+
+        for (let i = 0; i < 2 && !parsed; i++) {
+            raw = await generateResponse(updatePrompt)
+            parsed = await extractJson(raw)
+            if (!parsed) {
+                raw = await generateResponse(updatePrompt + "\n\nRETURN ONLY RAW JSON")
+                parsed = await extractJson(raw)
+            }
+            console.log(raw);
+            console.log(parsed);
+
+        }
+
+        if (!parsed || !parsed.code) {
+            console.log("AI returned invalid response:", raw);
+            return res.status(500).json({ message: "AI returned invalid response" })
+        }
+
+        website.conversation.push(
+             { role: "user", content: prompt },
+            {
+            role: "ai",
+            content: parsed.message
+        }
+           
+        )
+        website.latestCode = parsed.code
+        await website.save()
+
+        user.credits = user.credits - 25
+        await user.save()
+        return res.json({
+           message:parsed.message,
+           code: parsed.code,
+            remainingCredits: user.credits
+        })
+    } catch (error) {
+        console.error("Error updating website:", error);
+        return res.status(500).json({ message: ` update website error ${error}` });
+    }
+}
+
+export const getAll = async(req,res) =>{
+    try {
+        const websites = await Website.find({ user: req.user._id })
+        return res.status(200).json({ websites })
+    } catch (error) {
+        console.error("Error fetching websites:", error);
+        return res.status(500).json({ message: `Internal server error ${error}` });
+    }
+
 }
