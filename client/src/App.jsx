@@ -18,6 +18,7 @@ function App() {
         <Route path='/Dashboard' element={userData?<Dashboard/>:<Navigate to= {"/"}/>} />
         <Route path='/Generate' element={userData?<Generate/>:<Navigate to= {"/"}/>} />
         <Route path='/editor/:id'element={userData?<WebsiteEditor/>:<Navigate to={"/"}/>} />
+        <Route path='/site/:id' element={<LiveSite />} />
       </Routes>
     </BrowserRouter>
   )

@@ -130,7 +130,8 @@ function WebsiteEditor() {
                         <button className='p-2'onClick={() =>setShowFullPreview(true)}><Monitor size={18} /></button>
                     </div>
                 </div>
-                <iframe ref={iframeRef} className='flex-1 w-full bg-white' />
+                <iframe ref={iframeRef} className='flex-1 w-full bg-white'
+                sandbox='allow-scripts allow-same-origin allow-forms' />
             </div>
             <AnimatePresence>
                 {showChat && (
@@ -197,7 +198,7 @@ function WebsiteEditor() {
                 {showFullPreview && (
                     <motion.div
                         className='fixed inset-0 z-[9999] bg-black'> 
-                            <iframe className='w-full h-full bg-white 'srcDoc={code}/>
+                            <iframe className='w-full h-full bg-white 'srcDoc={code} sandbox= 'allow-scripts allow-same-origin allow-forms'/>
                             <button className='absolute top-4 right-4 p-2 bg-black/70 rounded-lg'onClick ={() =>setShowFullPreview(false)}><X/></button>
                     </motion.div>
                 )}
