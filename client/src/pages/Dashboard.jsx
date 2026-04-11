@@ -12,7 +12,17 @@ function Dashboard() {
     const [websites, setWebsites] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
-
+    
+    const handleDeploy = async(id)=>{
+        try {
+            const result = await axios.get(`${import.meta.env.VITE_SERVER_URL}/api/website/deploy/${id}`,
+                { withCredentials: true }
+            );
+          window.open(`${result.data.url}`,"_blank")  
+        } catch (error) {
+            console.error("Error deploying website:", error);
+        }
+    }
     useEffect(() => {
         const handleGetAllWebsites = async () => {
             setLoading(true);
@@ -103,7 +113,9 @@ function Dashboard() {
                                     <h3 className='text-base font-semibold line-clamp-2'>{w.name || w.title || `Website ${i + 1}`}</h3>
                                     <p className='text-xs text-zinc-400 '>Last Updated{''}{new Date(w.updatedAt).toLocaleDateString()}</p>
                                     {!w.deployed ? (
-                                        <button className='mt-auto flex items-center justify-center gap-2 px-2 py-2 rounded-xl text-sm  font-semibold bg-gradient-to-r from-indigo-500 to-purple-500 hover:scale-105 transition '><Rocket size={18} />Deploy</button>
+                                        <button className='mt-auto flex items-center justify-center gap-2 px-2 py-2 rounded-xl text-sm  font-semibold bg-gradient-to-r from-indigo-500 to-purple-500 hover:scale-105 transition '
+                                        onClick={()=>handleDeploy(w._id)}
+                                        ><Rocket size={18} />Deploy</button>
                                     ) : (<button><Share2 />Share Link</button>)}
                                 </div>
 
