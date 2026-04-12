@@ -6,6 +6,7 @@ import { useSelector } from 'react-redux';
 import Dashboard from './pages/Dashboard';
 import Generate from './pages/Generate';
 import WebsiteEditor from './pages/Editor';
+import LiveSite from './pages/LiveSite';
 export const serverUrl = "";
 function App() {
   const { loading } = useGetCurrentUSer(); 
@@ -19,6 +20,7 @@ function App() {
         <Route path='/Generate' element={userData?<Generate/>:<Navigate to= {"/"}/>} />
         <Route path='/editor/:id'element={userData?<WebsiteEditor/>:<Navigate to={"/"}/>} />
         <Route path='/site/:id' element={<LiveSite />} />
+        
       </Routes>
     </BrowserRouter>
   )

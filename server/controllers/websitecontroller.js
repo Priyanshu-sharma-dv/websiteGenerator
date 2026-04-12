@@ -324,16 +324,31 @@ export const deploy = async (req ,res) => {
             return res.status(404).json({ message: "Website not found" });
         }
       if(!website.slug){
-        website.slug = website.title.toLowerCase().replace(/[^a-z0-9]+/g, ' ').slice(0,60)+website._id.toString().slice(-5); 
+        website.slug = website.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0,60)+website._id.toString().slice(-5); 
       }
       website.deployed = true
-      website.deployed = `${process.env.FRONTEND_URL}/site/${website.slug}`
+      website.deployedUrl = `${process.env.FRONTEND_URL}/site/${website.slug}`
       await website.save()
 
-      return res.status(200).json({ deployedUrl: website.deployed })
+      return res.status(200).json({ deployedUrl: website.deployedUrl })
     } catch (error) {
         console.error("Error deploying website:", error);
         return res.status(500).json({ message: `Internal server error ${error}` });
     }
     
+}
+export const getBySlug = async(req,res) =>{
+    try {
+        const website = await Website.findOne({
+            slug: req.params.slug,
+            user: req.user._id
+        });
+        if (!website) {
+            return res.status(404).json({ message: "Website not found" });
+        }
+        return res.status(200).json({ website });
+    } catch (error) {
+        console.error("Error fetching website by slug:", error);
+        return res.status(500).json({ message: `Internal server error ${error}` });
+    }
 }
