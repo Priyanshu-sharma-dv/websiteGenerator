@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard';
 import Generate from './pages/Generate';
 import WebsiteEditor from './pages/Editor';
 import LiveSite from './pages/LiveSite';
+import Pricing from './pages/Pricing';
 export const serverUrl = "";
 function App() {
   const { loading } = useGetCurrentUSer(); 
@@ -20,7 +21,7 @@ function App() {
         <Route path='/Generate' element={userData?<Generate/>:<Navigate to= {"/"}/>} />
         <Route path='/editor/:id'element={userData?<WebsiteEditor/>:<Navigate to={"/"}/>} />
         <Route path='/site/:id' element={<LiveSite />} />
-        
+         <Route path='/pricing' element={<Pricing/>} />
       </Routes>
     </BrowserRouter>
   )

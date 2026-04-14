@@ -45,6 +45,16 @@ function WebsiteEditor() {
             console.error("Error updating website:", error.response?.data);
         }
     }
+    const handleDeploy = async (id) => {
+            try {
+                const result = await axios.get(`${import.meta.env.VITE_SERVER_URL}/api/website/deploy/${website._id}`,
+                    { withCredentials: true }
+                );
+                window.open(`${result.data.url}`, "_blank")
+            } catch (error) {
+                console.error("Error deploying website:", error);
+            }
+        }
     useEffect(() => {
         if (!updateLoading) return;
         const i =
@@ -122,16 +132,17 @@ function WebsiteEditor() {
                 <div className="h-14 px-4 flex justify-between items-center border-b border-white/10 bg-black/80">
                     <span className='text-xs text-zinc-400'>Live Preview</span>
                     <div className="flex gap-2">
-                        <button className='flex items-center gap-2 px-4 py-1.5 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-500 text-sm font-semibold hover:scale-105 transition'>
+                        {website.deployed ? "" :  <button className='flex items-center gap-2 px-4 py-1.5 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-500 text-sm font-semibold hover:scale-105 transition' onClick={handleDeploy}>
                             <Rocket size={14} />Deploy
-                        </button>
+                        </button>}
+                       
                         <button className='p-2 lg:hidden 'onClick={() =>setShowChat(true)}><MessageSquare size ={18}/></button>
                         <button className='p-2' onClick={() => setShowCode(true)}><Code2 size={18} /></button>
                         <button className='p-2'onClick={() =>setShowFullPreview(true)}><Monitor size={18} /></button>
                     </div>
                 </div>
                 <iframe ref={iframeRef} className='flex-1 w-full bg-white'
-                sandbox='allow-scripts allow-same-origin allow-forms' />
+                sandbox='allow-scripts  allow-forms' />
             </div>
             <AnimatePresence>
                 {showChat && (

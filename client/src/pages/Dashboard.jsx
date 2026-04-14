@@ -5,20 +5,22 @@ import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux'
 import axios from 'axios';
 import { Rocket, Code2, Monitor } from 'lucide-react';
-import { Trash2, Eye, Globe, Share2 } from "lucide-react";
+import { Trash2, Eye, Globe, Share2, Check} from "lucide-react";
 function Dashboard() {
     const { userData } = useSelector(state => state.user)
     const navigate = useNavigate();
     const [websites, setWebsites] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
-    
-    const handleDeploy = async(id)=>{
+    const [copiedId, setCopiedId] = useState(null);
+
+    const handleDeploy = async (id) => {
         try {
             const result = await axios.get(`${import.meta.env.VITE_SERVER_URL}/api/website/deploy/${id}`,
                 { withCredentials: true }
             );
-          window.open(`${result.data.url}`,"_blank")  
+            window.open(`${result.data.url}`, "_blank")
+            setWebsites((prev) => prev.map((w) => w._id === id ? { ...w, deployed: true, deployedUrl: result.data.url } : w));
         } catch (error) {
             console.error("Error deploying website:", error);
         }
@@ -42,7 +44,12 @@ function Dashboard() {
         };
         handleGetAllWebsites();
     }, []);
-
+    const handleCopyLink = async (site) => {
+           console.log("Deployed URL:", site.deployedUrl);
+        navigator.clipboard.writeText(site.deployedUrl)
+        setCopiedId(site._id);
+        setTimeout(() => setCopiedId(null), 2000)
+    }
     return (
         <div className="min-h-screen bg-[#050505] text-white">
             {/* Navbar */}
@@ -90,13 +97,17 @@ function Dashboard() {
                 )}
                 {!loading && !error && websites?.length > 0 && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
-                        {websites.map((w, i) => (
-                            <motion.div
+                        {websites.map((w, i) => {
+
+                            const copied = copiedId === w._id;
+
+                            return <motion.div
                                 key={w._id ?? i}
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: i * 0.05 }}
                                 whileHover={{ y: -6 }}
+                                onClick={() =>navigate(`/editor/${w._id}`)}
                                 className='rounded-2xl bg-white/5 border border-white/10 overflow-hidden hover:bg-white/10 transition flex flex-col cursor-pointer'
                             >
                                 {/* Website Preview */}
@@ -114,13 +125,26 @@ function Dashboard() {
                                     <p className='text-xs text-zinc-400 '>Last Updated{''}{new Date(w.updatedAt).toLocaleDateString()}</p>
                                     {!w.deployed ? (
                                         <button className='mt-auto flex items-center justify-center gap-2 px-2 py-2 rounded-xl text-sm  font-semibold bg-gradient-to-r from-indigo-500 to-purple-500 hover:scale-105 transition '
-                                        onClick={()=>handleDeploy(w._id)}
+                                            onClick={() => handleDeploy(w._id)}
                                         ><Rocket size={18} />Deploy</button>
-                                    ) : (<button><Share2 />Share Link</button>)}
+                                    ) : (<motion.button
+                                        whileTap={{ scale: 0.95 }}
+                                        onClick={() => handleCopyLink(w)}
+                                        className={`mt-auto flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${copied ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-white/10 hover:bg-white/20 border border-white/10'}`}
+                                    >  {copied ? (<>
+                                        <Check size={14} />
+                                        Link Copied
+                                    </>
+                                    ) :
+                                        <>
+                                            <Share2 size={14} /> Share Link
+                                        </>}
+
+                                    </motion.button>)}
                                 </div>
 
                             </motion.div>
-                        ))}
+                        })}
                     </div>
                 )}
             </div>
