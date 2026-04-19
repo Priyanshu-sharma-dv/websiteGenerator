@@ -6,10 +6,14 @@ import cors from "cors";
 import authRouter from "./routes/authRoutes.js";
 import userRouter from "./routes/userRoute.js";
 import websiteRouter from "./routes/websiteroute.js";
-
+import billingRouter from "./routes/billroutes.js";
+import {stripeWebhook}  from "./controllers/stripewebhookcontroller.js";
 dotenv.config();
 
 const app = express();
+app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }),
+  stripeWebhook
+);
 const port = process.env.PORT || 8000;
 
 // Middleware
@@ -32,6 +36,7 @@ app.use(cors({
 app.use("/api/auth", authRouter);
 app.use("/api/user", userRouter);
 app.use("/api/website", websiteRouter);
+app.use('/api/billing', billingRouter);
 // Start server after DB connects
 const startServer = async () => {
   try {

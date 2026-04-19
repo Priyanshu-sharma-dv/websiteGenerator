@@ -1,4 +1,4 @@
-import { PLANS } from '../config/plans.js';
+import  {PLANS}  from '../config/plan.js';
 import stripe from '../config/stripe.js';
 import dotenv from 'dotenv';
 dotenv.config();
@@ -27,11 +27,11 @@ export const billing = async (req, res) => {
             }
         ],
         metadata :{
-            userId,
+            userId: userId.toString(),
             credits:plan.credits,
                 plan: plan.plan
         },
-        uccess_url: `${process.env.FRONTEND_URL}/`,
+        success_url: `${process.env.FRONTEND_URL}/`,
         cancel_url: `${process.env.FRONTEND_URL}/pricing`,
      });
     return res.status(200).json({ SessionUrl: session.url });

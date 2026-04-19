@@ -3,6 +3,9 @@ import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Coins, Check } from 'lucide-react';
+import { useSelector } from 'react-redux';
+import { useState } from 'react';
+import axios from 'axios';
 const plans = [
     {
         key: "free",
@@ -46,15 +49,41 @@ const plans = [
             "Priority support"
         ],
         popular: false,
-        button: "Get Enterprise"
+        button: "Contact Enterprise Sales"
     }
 ]
 function Pricing() {
     const navigate = useNavigate();
+    const { userData } = useSelector(state => state.user)
+    const [loading, setloading] = useState(null);
+    const handlebuy = async (planKey) => {
+        if (!userData) {
+            navigate('/');
+            return;
+        }
+        if (planKey === 'free') {
+            navigate('/dashboard')
+            return;
+        }
+        setloading(planKey);
+        try {
+            const result = await axios.post(`${import.meta.env.VITE_SERVER_URL}/api/billing`,
+                {
+                    planType: planKey,
+                },
+                {
+                    withCredentials: true,
+                })
+            window.location.href = result.data.SessionUrl;
+        } catch (error) {
+            console.log(error);
+            setloading(null);
+        }
+    }
     return (
         <div className='relative min-h-screen overflow-hidden bg-[#050505] text-white  px-6 pt-16 pb-24'>
             <div className="absolute inset-0 pointer-events-none">
-                <div className="absolute -top-40 -left-40 w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[120px]" />
+                <div className="absolute -top-40 -left-40 w-\[500px\] h-\[500px\] bg-indigo-600/20 rounded-full blur-[120px]" />
             </div>
             <button className='relative z-10 mb-8 flex items-center gap-2 text-sm text-zinc-400 hover:text-white transition' onClick={() => navigate('/')}>
                 <ArrowLeft size={18} />
@@ -97,7 +126,7 @@ function Pricing() {
                                     key={f}
                                     className='flex items-center gap-2 text-sm text-zinc-300'
                                 >
-                                    <Check className ='text-green-400'size ={16} />
+                                    <Check className='text-green-400' size={16} />
                                     {f}
                                 </li>
                             ))}
@@ -105,11 +134,12 @@ function Pricing() {
                         <motion.button
                             whileHover={{ scale: 0.96 }}
                             whileTap={{ scale: 0.95 }}
-                            className={`w-full py-3 rounded-lx font-semibold transition
+                            disabled={loading}
+                            className={`w-full py-3 rounded-xl font-semibold transition
                                  ${p.popular ? 'bg-indigo-500 hover:bg-indigo-600' : 'bg-white/10 hover:bg-white/20'}disabled:opacity-60`}
-                            onClick={() => navigate('/checkout')}
+                            onClick={() => handlebuy(p.key)}
                         >
-                            {p.button}
+                            {loading === p.key ? 'redirecting...' : p.button}
                         </motion.button>
                     </motion.div>
                 ))}
