@@ -11,10 +11,10 @@ const plans = [
         key: "free",
         name: "free",
         price: '0',
-        credits: 100,
+        credits: 20000,
         description: "Ideal for individuals looking to explore AI-generated websites with a limited number of creations and basic features.",
         features: [
-            "100 AI-Generated Website Credits",
+            "20000 AI-Generated Website Credits",
             " Reponsive HTML output",
             "Basic animations",
         ],
@@ -25,10 +25,10 @@ const plans = [
         key: "pro",
         name: "pro",
         price: '499',
-        credits: 500,
+        credits: 30000,
         description: "Perfect for professionals and businesses that need more features and higher limits.",
         features: [
-            "1000 AI-Generated Website Credits",
+            "30000 AI-Generated Website Credits",
             "Responsive HTML output",
             "Advanced animations",
             "Priority support"
@@ -40,7 +40,7 @@ const plans = [
         key: "enterprise",
         name: "enterprise",
         price: '1499',
-        credits: 2000,
+        credits: 50000,
         description: "Best for large enterprises with high demands and the need for custom solutions.",
         features: [
             "Unlimited iterations",

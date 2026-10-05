@@ -10,8 +10,8 @@ export const billing = async (req, res) => {
      const plan = PLANS[planType];
      if(!plan || plan.price === 0){
         return res.status(400).json({ message: 'Invalid plan type' });
-     }
-     const session =  await stripe.checkout.sessions.create({
+     } 
+         const session =  await stripe.checkout.sessions.create({
         mode:"payment",
         payment_method_types: ['card'],
         line_items:[
@@ -28,14 +28,16 @@ export const billing = async (req, res) => {
         ],
         metadata :{
             userId: userId.toString(),
-            credits:plan.credits,
-                plan: plan.plan
+               credits: String(plan.credits),
+        plan: planType
         },
         success_url: `${process.env.FRONTEND_URL}/`,
         cancel_url: `${process.env.FRONTEND_URL}/pricing`,
      });
     return res.status(200).json({ SessionUrl: session.url });
     }catch(error){
+        console.log(error);
+        
         return res.status(500).json({ message: 'billing error' });
     }
 }

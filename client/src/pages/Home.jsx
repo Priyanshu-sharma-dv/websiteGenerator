@@ -5,9 +5,11 @@ import { useSelector } from "react-redux";
 import { Coins } from "lucide-react";
 import { AnimatePresence } from "framer-motion";
 import axios from 'axios';
+import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { setUserData } from "../redux/userSlice";
 import { useNavigate } from "react-router-dom";
+
 function Home() {
   const highlights = [
     "AI Generated Code",
@@ -18,6 +20,7 @@ function Home() {
   const [openLogin, setOpenLogin] = useState(false);
   const { userData } = useSelector(state => state.user);
   const [openProfile, setOpenProfile] = useState(false);
+  const [websites, setWebsites] = useState(null);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const handleLogOut = async () => {
@@ -29,6 +32,23 @@ function Home() {
     console.log(error);
   }
 }
+    useEffect(() => {
+        const handleGetAllWebsites = async () => {
+          
+            try {
+                const result = await axios.get(
+                    `${import.meta.env.VITE_SERVER_URL}/api/website/get-all`,
+                    { withCredentials: true }
+                );
+                console.log("API Response:", result.data); // 👈 check console, then remove
+                setWebsites(result.data.websites || result.data || []); 
+            } catch (error) {
+                console.error("Error fetching websites:", error);
+                
+            } 
+        };
+        handleGetAllWebsites();
+    }, [userData]);
   return (
     <div className="relative min-h-screen bg-[#040404] text-white overflow-hidden">
 
@@ -132,7 +152,8 @@ function Home() {
         </button>
       </section>
 
-      <section className="max-w-7xl mx-auto px-6 pb-32">
+      
+      {!userData &&  <section className="max-w-7xl mx-auto px-6 pb-32">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
           {highlights.map((h, i) => (
             <motion.div
@@ -150,8 +171,36 @@ function Home() {
             </motion.div>
           ))}
         </div>
-      </section>
+      </section>}
 
+      {userData && websites?.length>0 &&(
+        <section className="max-w-7xl mx-auto px-6 pb-32">
+          <h3 className="text-2xl font-semibold mb-6">Your Recent Websites</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {websites.slice(0, 3).map((w, i) => (
+              <motion.div
+                key={w._id }
+                whileHover={{y: -6}}
+                onClick={() =>navigate(`/editor/${w._id}`)}
+                className="cursor-pointer rounded-2xl bg-white/5 border border-white/10 overflow-hidden "
+              >
+                <div className="h-40 bg-black">
+                  <iframe src={w.latestCode} 
+                  className="w-[140%] h-[140%] -scale-[0.72] origin-left pointer-events-none bg-white"
+                  />
+                </div>
+                <div className="p-4"><h3 className="text-base font-semibold line-camp -2">{w.title}</h3>
+                <p className="text-xs text-zinc-400">Last Updated{""}
+                  {new Date(w.updatedAt).toLocaleDateString()}
+                </p></div>
+                
+              </motion.div>
+            ))}
+          </div>
+        </section>
+      )}
+      
+      
       <footer className="border-t border-white/10 py-10 text-center text-sm text-zinc-500">
         &copy; {new Date().getFullYear()} GenWeb.ai
       </footer>
